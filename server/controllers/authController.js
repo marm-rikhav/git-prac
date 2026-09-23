@@ -1,36 +1,47 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
-// Helper function to validate email format
 const isValidEmail = (email) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
+  const atIndex = email.indexOf('@');
+  const domain = email.slice(atIndex + 1);
+
+  return (
+    atIndex > 0 &&
+    atIndex === email.lastIndexOf('@') &&
+    !email.includes(' ') &&
+    domain.includes('.') &&
+    !domain.startsWith('.') &&
+    !domain.endsWith('.')
+  );
+};
+
+const validateCredentials = ({ email, password }) => {
+  if (!email || !password) {
+    return { error: 'Email and password are required.' };
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!isValidEmail(normalizedEmail)) {
+    return { error: 'Invalid email format.' };
+  }
+
+  if (password.length < 8) {
+    return { error: 'Password must be at least 8 characters long.' };
+  }
+
+  return { email: normalizedEmail, password };
 };
 
 // Register Handler
 exports.register = async (req, res) => {
   try {
-    const { email, password } = req.body;
-
-    // 1. Check if email and password are provided
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required.' });
+    const credentials = validateCredentials(req.body);
+    if (credentials.error) {
+      return res.status(400).json({ message: credentials.error });
     }
+    const { email, password } = credentials;
 
-    const trimmedEmail = email.trim();
-
-    // 2. Validate email format
-    if (!isValidEmail(trimmedEmail)) {
-      return res.status(400).json({ message: 'Invalid email format.' });
-    }
-
-    // 3. Validate password length (minimum 8 characters)
-    if (password.length < 8) {
-      return res.status(400).json({ message: 'Password must be at least 8 characters long.' });
-    }
-
-    // 4. Check if email already exists
-    const existingUser = await User.findOne({ email: trimmedEmail.toLowerCase() });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'Email is already registered.' });
     }
@@ -41,7 +52,7 @@ exports.register = async (req, res) => {
 
     // 6. Create new user
     const newUser = new User({
-      email: trimmedEmail.toLowerCase(),
+      email,
       password: hashedPassword,
     });
 
@@ -63,27 +74,13 @@ exports.register = async (req, res) => {
 // Login Handler
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-
-    // 1. Check if email and password are provided
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required.' });
+    const credentials = validateCredentials(req.body);
+    if (credentials.error) {
+      return res.status(400).json({ message: credentials.error });
     }
+    const { email, password } = credentials;
 
-    const trimmedEmail = email.trim();
-
-    // 2. Validate email format
-    if (!isValidEmail(trimmedEmail)) {
-      return res.status(400).json({ message: 'Invalid email format.' });
-    }
-
-    // 3. Validate password length (minimum 8 characters)
-    if (password.length < 8) {
-      return res.status(400).json({ message: 'Password must be at least 8 characters long.' });
-    }
-
-    // 4. Find user by email
-    const user = await User.findOne({ email: trimmedEmail.toLowerCase() });
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials. User not found.' });
     }
