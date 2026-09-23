@@ -162,7 +162,7 @@ export default function Login({ onSwitchToRegister }) {
         <Typography variant="body2">
           Don't have an account?{' '}
           <Button color="primary" onClick={onSwitchToRegister} sx={{ textTransform: 'none' }}>
-            Register
+            Register here
           </Button>
         </Typography>
       </Box>
