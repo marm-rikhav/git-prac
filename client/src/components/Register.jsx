@@ -79,7 +79,7 @@ export default function Register({ onSwitchToLogin }) {
         type={showPassword ? 'text' : 'password'}
         id="register-password"
         autoComplete="new-password"
-        value={password}
+        value={password ?? ''}
         onChange={(e) => setPassword(e.target.value)}
         error={Boolean(errors.password)}
         helperText={errors.password || 'Minimum 8 characters'}

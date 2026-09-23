@@ -23,7 +23,7 @@ export default function useAuthForm({
     resetOnSuccess = false,
 }) {
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [password, setPassword] = useState();
     const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState({});
     const [serverMessage, setServerMessage] = useState(null);
@@ -64,7 +64,7 @@ export default function useAuthForm({
             setServerMessage(response.data.message || successMessage);
             if (resetOnSuccess) {
                 setEmail('');
-                setPassword('');
+                setPassword();
             }
             setErrors({});
         } catch (error) {
