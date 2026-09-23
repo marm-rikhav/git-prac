@@ -1,7 +1,19 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const isValidEmail = (email) => {
+    const atIndex = email.indexOf('@');
+    const domain = email.slice(atIndex + 1);
+
+    return (
+        atIndex > 0 &&
+        atIndex === email.lastIndexOf('@') &&
+        !email.includes(' ') &&
+        domain.includes('.') &&
+        !domain.startsWith('.') &&
+        !domain.endsWith('.')
+    );
+};
 
 export default function useAuthForm({
     endpoint,
