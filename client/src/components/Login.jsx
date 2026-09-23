@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import {
   Box,
   TextField,
@@ -169,3 +170,7 @@ export default function Login({ onSwitchToRegister }) {
     </Box>
   );
 }
+
+Login.propTypes = {
+  onSwitchToRegister: PropTypes.func.isRequired,
+};
