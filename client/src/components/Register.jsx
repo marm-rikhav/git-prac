@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {
   Box,
@@ -14,68 +14,29 @@ import {
 } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import axios from 'axios';
-
-const isValidEmail = (email) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
+import useAuthForm from '../hooks/useAuthForm';
 
 export default function Register({ onSwitchToLogin }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [serverMessage, setServerMessage] = useState(null);
-  const [serverError, setServerError] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!email) {
-      newErrors.email = 'Email is required.';
-    } else if (!isValidEmail(email)) {
-      newErrors.email = 'Please enter a valid email address (e.g. user@example.com).';
-    }
-
-    if (!password) {
-      newErrors.password = 'Password is required.';
-    } else if (password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters long.';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setServerMessage(null);
-    setServerError(null);
-
-    if (!validateForm()) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
-        email,
-        password,
-      });
-
-      setServerMessage(response.data.message || 'Registration successful!');
-      setEmail('');
-      setPassword('');
-      setErrors({});
-    } catch (err) {
-      const msg = err.response?.data?.message || 'Registration failed. Please try again.';
-      setServerError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const form = useAuthForm({
+    endpoint: 'http://localhost:5000/api/auth/register',
+    invalidEmailMessage: 'Please enter a valid email address (e.g. user@example.com).',
+    successMessage: 'Registration successful!',
+    fallbackErrorMessage: 'Registration failed. Please try again.',
+    resetOnSuccess: true,
+  });
+  const {
+    email,
+    setEmail,
+    password,
+    setPassword,
+    showPassword,
+    setShowPassword,
+    errors,
+    serverMessage,
+    serverError,
+    loading,
+    handleSubmit,
+  } = form;
 
   return (
     <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
