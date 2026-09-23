@@ -22,18 +22,20 @@ app.get('/api/health', (req, res) => {
 });
 
 // Database connection & server start
-mongoose
-  .connect(MONGO_URI)
-  .then(() => {
+const startServer = async () => {
+  try {
+    await mongoose.connect(MONGO_URI);
     console.log('Successfully connected to MongoDB.');
     app.listen(PORT, () => {
       console.log(`Server listening on port ${PORT}`);
     });
-  })
-  .catch((err) => {
+  } catch (err) {
     console.error('MongoDB connection error:', err);
     // Start server even if MongoDB connection fails so endpoints can report errors
     app.listen(PORT, () => {
       console.log(`Server listening on port ${PORT} (MongoDB disconnected)`);
     });
-  });
+  }
+};
+
+startServer();
